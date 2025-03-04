@@ -9,8 +9,8 @@ class World {
 
     generateWorld() {
         // Create a simple test world (100x100 tiles)
-        const width = 100;
-        const height = 100;
+        const width = 5000;
+        const height = 24;
         
         // Initialize empty world
         this.tiles = new Array(height).fill(null).map(() => 
