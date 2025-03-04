@@ -5,7 +5,9 @@ const TEXTURES = {
         stone: '/assets/tiles/stone.png'
     },
     player: {
-        idle: '/assets/player/player.png'
+        idle: '/assets/player/idle.png',
+        jump: '/assets/player/jump.png',
+        run: '/assets/player/run.png'
     }
 };
 

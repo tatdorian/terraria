@@ -1,4 +1,4 @@
-// This file contains the logic for player interactions, including movement and actions within the game.
+import TextureLoader from './textures.js';
 
 class Player {
     constructor(name) {
@@ -11,15 +11,18 @@ class Player {
         this.jumping = false;
         this.health = 100;
         this.inventory = [];
+        this.facingLeft = false; // Orientation du joueur
     }
 
     handleInput(e, isKeyDown) {
         switch(e.key) {
             case 'ArrowLeft':
                 this.velocity.x = isKeyDown ? -this.speed : 0;
+                this.facingLeft = true;
                 break;
             case 'ArrowRight':
                 this.velocity.x = isKeyDown ? this.speed : 0;
+                this.facingLeft = false;
                 break;
             case 'Space':
             case 'ArrowUp':
@@ -32,25 +35,46 @@ class Player {
     }
 
     update(world) {
-        // Apply gravity
+        // Appliquer la gravité
         this.velocity.y += this.gravity;
         
-        // Update position
+        // Mettre à jour la position
         this.x += this.velocity.x;
         this.y += this.velocity.y;
 
-        // Simple ground collision
-        if (this.y > 300) { // Temporary ground level
+        // Gestion des collisions avec le sol
+        if (this.y > 300) { 
             this.y = 300;
             this.velocity.y = 0;
             this.jumping = false;
         }
     }
 
+    getCurrentTexture() {
+        if (this.jumping) {
+            return TextureLoader.get('player', 'jump');
+        } else if (this.velocity.x !== 0) {
+            return TextureLoader.get('player', 'run');
+        } else {
+            return TextureLoader.get('player', 'idle');
+        }
+    }
+
     render(ctx) {
-        // Draw player
-        ctx.fillStyle = 'red';
-        ctx.fillRect(this.x, this.y, 32, 32);
+        const texture = this.getCurrentTexture();
+
+        if (texture) {
+            ctx.save(); // Sauvegarde le contexte avant transformation
+
+            if (this.facingLeft) {
+                ctx.scale(-1, 1); // Retourne horizontalement
+                ctx.drawImage(texture, -this.x - 32, this.y, 100, 100);
+            } else {
+                ctx.drawImage(texture, this.x, this.y, 100, 100);
+            }
+
+            ctx.restore(); // Restaure le contexte
+        }
     }
 }
 
