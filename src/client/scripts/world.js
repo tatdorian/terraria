@@ -9,7 +9,7 @@ class World {
 
     generateWorld() {
         // Create a simple test world (100x100 tiles)
-        const width = 5000;
+        const width = 1000;
         const height = 24;
         
         // Initialize empty world
@@ -55,14 +55,14 @@ class World {
         // Add any world update logic here
     }
 
-    render(ctx, camera = { x: 0, y: 0 }) {
+    render(ctx, camera = { x: 0 , y: 0 }) {
         // Only render tiles that are visible on screen
         const screenWidth = ctx.canvas.width;
         const screenHeight = ctx.canvas.height;
 
         const startX = Math.max(0, Math.floor(camera.x / this.tileSize));
         const startY = Math.max(0, Math.floor(camera.y / this.tileSize));
-        const endX = Math.min(this.tiles[0].length, Math.ceil((camera.x + screenWidth) / this.tileSize));
+        const endX = Math.min(this.tiles[0].length, Math.ceil((camera.x + screenWidth) / this.tileSize)*100);
         const endY = Math.min(this.tiles.length, Math.ceil((camera.y + screenHeight) / this.tileSize));
 
         for (let y = startY; y < endY; y++) {

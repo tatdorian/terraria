@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     await game.init();
 
                     console.log('Game started successfully');
+
+                    game.player.x = 4800;
                 } catch (error) {
                     console.error('Error starting game:', error);
                     alert('Error starting game: ' + error.message);

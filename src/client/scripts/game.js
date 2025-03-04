@@ -34,6 +34,7 @@ export default class Game {  // Changed to default export
             console.log('Textures loaded successfully');
             this.gameLoop();
             console.log('Game initialized successfully');
+            this.player.x = 2400;
         } catch (error) {
             console.error('Game initialization error:', error);
             throw error;
