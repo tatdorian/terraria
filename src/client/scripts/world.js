@@ -2,86 +2,46 @@ import TextureLoader from './textures.js';
 
 class World {
     constructor() {
-        this.tileSize = 32; // Size of each tile in pixels
+        this.tileSize = 32;
         this.tiles = [];
         this.generateWorld();
     }
 
     generateWorld() {
-        // Create a simple test world (100x100 tiles)
-        const width = 1000;
-        const height = 24;
-        
-        // Initialize empty world
-        this.tiles = new Array(height).fill(null).map(() => 
-            new Array(width).fill(null)
-        );
+        const width = 1000, height = 24;
+        this.tiles = new Array(height).fill(null).map(() => new Array(width).fill(null));
 
-        // Generate terrain
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                if (y < height / 2) {
-                    // Air
-                    this.tiles[y][x] = null;
-                } else if (y === height / 2) {
-                    // Grass
-                    this.tiles[y][x] = 'grass';
-                } else if (y < height / 2 + 5) {
-                    // Dirt
-                    this.tiles[y][x] = 'dirt';
-                } else {
-                    // Stone
-                    this.tiles[y][x] = 'stone';
-                }
+                if (y < height / 2) this.tiles[y][x] = null;
+                else if (y === height / 2) this.tiles[y][x] = 'grass';
+                else if (y < height / 2 + 5) this.tiles[y][x] = 'dirt';
+                else this.tiles[y][x] = 'stone';
             }
         }
     }
 
     handleClick(x, y, isRightClick) {
-        // Convert screen coordinates to tile coordinates
         const tileX = Math.floor(x / this.tileSize);
         const tileY = Math.floor(y / this.tileSize);
 
-        if (isRightClick) {
-            // Place tile
-            this.tiles[tileY][tileX] = 'dirt';
-        } else {
-            // Remove tile
-            this.tiles[tileY][tileX] = null;
+        if (tileY >= 0 && tileY < this.tiles.length && tileX >= 0 && tileX < this.tiles[0].length) {
+            this.tiles[tileY][tileX] = isRightClick ? 'dirt' : null;
         }
     }
 
-    update() {
-        // Add any world update logic here
+    isSolid(x, y) {
+        const tileX = Math.floor(x / this.tileSize);
+        const tileY = Math.floor(y / this.tileSize);
+        return this.tiles[tileY]?.[tileX] !== null;
     }
 
-    render(ctx, camera = { x: 0 , y: 0 }) {
-        // Only render tiles that are visible on screen
-        const screenWidth = ctx.canvas.width;
-        const screenHeight = ctx.canvas.height;
+    update() {}
 
-        const startX = Math.max(0, Math.floor(camera.x / this.tileSize));
-        const startY = Math.max(0, Math.floor(camera.y / this.tileSize));
-        const endX = Math.min(this.tiles[0].length, Math.ceil((camera.x + screenWidth) / this.tileSize)*100);
-        const endY = Math.min(this.tiles.length, Math.ceil((camera.y + screenHeight) / this.tileSize));
-
-        for (let y = startY; y < endY; y++) {
-            for (let x = startX; x < endX; x++) {
-                const tile = this.tiles[y][x];
-                if (tile) {
-                    const texture = TextureLoader.get('tiles', tile);
-                    if (texture) {
-                        ctx.drawImage(
-                            texture,
-                            x * this.tileSize - camera.x,
-                            y * this.tileSize - camera.y,
-                            this.tileSize,
-                            this.tileSize
-                        );
-                    }
-                }
-            }
-        }
+    render(ctx) {
+        this.tiles.forEach((row, y) => row.forEach((tile, x) => {
+            if (tile) ctx.drawImage(TextureLoader.get('tiles', tile), x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        }));
     }
 }
 

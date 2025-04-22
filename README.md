@@ -9,7 +9,6 @@ python -m src.server.app
 
 pour le deuxieme terminal :
 
-cd src/clent
+cd src/client
 
 python -m http.server 8000
-

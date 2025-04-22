@@ -11,11 +11,11 @@ class Player {
         this.jumping = false;
         this.health = 100;
         this.inventory = [];
-        this.facingLeft = false; // Orientation du joueur
+        this.facingLeft = false;
     }
 
     handleInput(e, isKeyDown) {
-        switch(e.key) {
+        switch (e.key) {
             case 'ArrowLeft':
                 this.velocity.x = isKeyDown ? -this.speed : 0;
                 this.facingLeft = true;
@@ -35,45 +35,49 @@ class Player {
     }
 
     update(world) {
-        // Appliquer la gravité
         this.velocity.y += this.gravity;
-        
-        // Mettre à jour la position
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
 
-        // Gestion des collisions avec le sol
-        if (this.y > 300) { 
-            this.y = 300;
+        this.x += this.velocity.x;
+
+        let isOnGround = world.isSolid(this.x, this.y + this.velocity.y + this.gravity);
+        if (!isOnGround) {
+            this.y += this.velocity.y;
+        } else {
+            this.y = Math.floor(this.y / world.tileSize) * world.tileSize;
             this.velocity.y = 0;
             this.jumping = false;
         }
+
+        if (this.y > 2000) {
+            this.respawn();
+        }
+    }
+
+    respawn() {
+        this.x = 2400;
+        this.y = 0;
+        this.velocity.y = 0;
+        this.jumping = false;
     }
 
     getCurrentTexture() {
-        if (this.jumping) {
-            return TextureLoader.get('player', 'jump');
-        } else if (this.velocity.x !== 0) {
-            return TextureLoader.get('player', 'run');
-        } else {
-            return TextureLoader.get('player', 'idle');
-        }
+        if (this.jumping) return TextureLoader.get('player', 'jump');
+        if (this.velocity.x !== 0) return TextureLoader.get('player', 'run');
+        return TextureLoader.get('player', 'idle');
     }
 
     render(ctx) {
         const texture = this.getCurrentTexture();
-
         if (texture) {
-            ctx.save(); // Sauvegarde le contexte avant transformation
-
+            ctx.save();
             if (this.facingLeft) {
-                ctx.scale(-1, 1); // Retourne horizontalement
-                ctx.drawImage(texture, -this.x - 32, this.y, 100, 100);
+                ctx.translate(this.x + 32, this.y);
+                ctx.scale(-1, 1);
+                ctx.drawImage(texture, -32, 0, 100, 100);
             } else {
                 ctx.drawImage(texture, this.x, this.y, 100, 100);
             }
-
-            ctx.restore(); // Restaure le contexte
+            ctx.restore();
         }
     }
 }
