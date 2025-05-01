@@ -1,9 +1,8 @@
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
-from flask import send_from_directory
+from flask import send_file
 import os
 
 # Change imports to use relative imports
@@ -51,9 +50,19 @@ app.register_blueprint(api)
 with app.app_context():
     db.create_all()
 
-@app.route('/terraria.db')
+@app.route('/db')
 def serve_db():
-    return send_from_directory(os.path.dirname(__file__), 'terraria.db')
+    try:
+        db_path = os.path.join(os.path.dirname(__file__), 'terraria.db')
+        print(f"Chemin de la base de données : {db_path}")
 
+        return send_file(
+            db_path,
+            mimetype='application/octet-stream',
+            as_attachment=False  # Important : ne pas forcer le téléchargement
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 if __name__ == "__main__":
     app.run(debug=True, port=5000)  # Specify the port explicitly

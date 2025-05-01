@@ -13,7 +13,7 @@ export default class ItemDatabase {
             });
             
             try {
-                const response = await fetch('../server/terraria.db');
+                const response = await fetch('http://localhost:5000/db');
                 if (!response.ok) {
                     throw new Error(`Failed to fetch database: ${response.status} ${response.statusText}`);
                 }
@@ -71,4 +71,6 @@ export default class ItemDatabase {
         stmt.free();
         return item;
     }
+
+    
 }
