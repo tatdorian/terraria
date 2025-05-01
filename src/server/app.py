@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
+from flask import send_from_directory
 import os
 
 # Change imports to use relative imports
@@ -49,6 +50,10 @@ app.register_blueprint(api)
 
 with app.app_context():
     db.create_all()
+
+@app.route('/terraria.db')
+def serve_db():
+    return send_from_directory(os.path.dirname(__file__), 'terraria.db')
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)  # Specify the port explicitly

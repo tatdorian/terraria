@@ -1,3 +1,4 @@
+// textures.js
 const TEXTURES = {
     tiles: {
         dirt: '/assets/tiles/dirt.png',
@@ -15,8 +16,9 @@ class TextureLoader {
     constructor() {
         this.loadedTextures = {};
     }
-
+    
     async loadAll() {
+        console.log('Loading all textures...');
         const promises = [];
         for (const category in TEXTURES) {
             for (const name in TEXTURES[category]) {
@@ -24,8 +26,9 @@ class TextureLoader {
             }
         }
         await Promise.all(promises);
+        console.log('All textures loaded successfully');
     }
-
+    
     async loadTexture(category, name, path) {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -36,11 +39,14 @@ class TextureLoader {
                 this.loadedTextures[category][name] = img;
                 resolve();
             };
-            img.onerror = reject;
+            img.onerror = (e) => {
+                console.error(`Failed to load texture: ${path}`, e);
+                reject(e);
+            };
             img.src = path;
         });
     }
-
+    
     get(category, name) {
         return this.loadedTextures[category]?.[name];
     }
