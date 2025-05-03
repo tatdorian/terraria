@@ -145,12 +145,19 @@ const fs = require('fs');
 const { createCanvas } = require('canvas');
 
 function createTexture(color, filename) {
-    const canvas = createCanvas(32, 32);
-    const ctx = canvas.getContext('2d');
-    
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, 32, 32);
-    
+    if (filename=='src/client/assets/tiles/grass.png') {
+        const canvas = createCanvas(32, 32);
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 32, 32);
+    } else {
+        const canvas = createCanvas(32, 32);
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 32, 32);
+    }
     // Add some pixel noise for texture
     ctx.fillStyle = 'rgba(0,0,0,0.1)';
     for (let i = 0; i < 32; i += 4) {

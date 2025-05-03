@@ -8,34 +8,66 @@ class World {
     }
 
     generateWorld() {
-        // Create a simple test world (100x100 tiles)
         const width = 1000;
         const height = 24;
-        
+        const groundLevelBase = Math.floor(height / 2); // Niveau de base
+    
         // Initialize empty world
-        this.tiles = new Array(height).fill(null).map(() => 
+        this.tiles = new Array(height).fill(null).map(() =>
             new Array(width).fill(null)
         );
-
-        // Generate terrain
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                if (y < height / 2) {
+    
+        // Crée une "height map" (carte d'altitude) pour le sol
+        const groundHeights = [];
+        let currentHeight = groundLevelBase;
+    
+        for (let x = 0; x < width; x++) {
+            // Variation aléatoire (-1, 0, +1)
+            const delta = Math.floor(Math.random() * 3) - 1;
+    
+            // Appliquer variation en limitant la pente (évite falaises)
+            currentHeight += delta;
+            currentHeight = Math.max(groundLevelBase - 4, Math.min(groundLevelBase + 4, currentHeight)); // Montagnes max +/-4 blocs
+    
+            groundHeights.push(currentHeight);
+        }
+    
+        // Remplir le monde selon la height map
+        for (let x = 0; x < width; x++) {
+            const groundY = groundHeights[x];
+    
+            for (let y = 0; y < height; y++) {
+                if (y < groundY) {
                     // Air
                     this.tiles[y][x] = null;
-                } else if (y === height / 2) {
-                    // Grass
+                } else if (y === groundY) {
+                    // Herbe
                     this.tiles[y][x] = 'grass';
-                } else if (y < height / 2 + 5) {
-                    // Dirt
+                } else if (y < groundY + 8) {
+                    // Terre
                     this.tiles[y][x] = 'dirt';
+                } else if (y < groundY + 12) {
+                    // Pierre
+                    this.tiles[y][x] = 'stone';
                 } else {
-                    // Stone
+                    // Pierre
                     this.tiles[y][x] = 'stone';
                 }
             }
         }
+    
+        // Remplir les trous d'eau (si trou profond < groundLevelBase + 2)
+        const waterLevel = groundLevelBase + 3; // Niveau de l'eau (bas)
+        for (let x = 0; x < width; x++) {
+            const groundY = groundHeights[x];
+            if (groundY > waterLevel) { // Trou profond
+                for (let y = waterLevel; y < groundY; y++) {
+                    this.tiles[y][x] = 'water';
+                }
+            }
+        }
     }
+    
 
     handleClick(x, y, isRightClick) {
         // Convert screen coordinates to tile coordinates
