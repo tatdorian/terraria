@@ -21,12 +21,12 @@ class Player {
 
     pickUp(item) {
         // Chercher d'abord un emplacement avec le même type d'objet (pour empiler)
-        const sameItemIndex = this.inventory.findIndex(slot => 
-            slot !== null && 
-            slot.name === item.name && 
+        const sameItemIndex = this.inventory.findIndex(slot =>
+            slot !== null &&
+            slot.name === item.name &&
             slot.quantity < 99  // Limite de stack à 99
         );
-        
+
         if (sameItemIndex !== -1) {
             // Empiler l'objet
             if (!this.inventory[sameItemIndex].quantity) {
@@ -36,7 +36,7 @@ class Player {
             console.log(`Empilé: ${item.name} (${this.inventory[sameItemIndex].quantity})`);
             return true;
         }
-        
+
         // Sinon, chercher un emplacement vide
         const emptyIndex = this.inventory.findIndex(slot => slot === null);
         if (emptyIndex !== -1) {
@@ -134,15 +134,15 @@ class Player {
         // Vérifier les collisions horizontales
         const newX = this.x + this.velocity.x;
         const playerWidth = 50; // Moitié de la largeur du joueur
-        
+
         // Vérifier les collisions aux quatre coins du joueur
         const topLeft = world.isSolid(newX, this.y + 10);
         const topRight = world.isSolid(newX + playerWidth * 2 - 10, this.y + 10);
         const bottomLeft = world.isSolid(newX, this.y + 90);
         const bottomRight = world.isSolid(newX + playerWidth * 2 - 10, this.y + 90);
-        
+
         // S'il n'y a pas de collision horizontale, appliquer le mouvement
-        if (!(this.velocity.x < 0 && (topLeft || bottomLeft)) && 
+        if (!(this.velocity.x < 0 && (topLeft || bottomLeft)) &&
             !(this.velocity.x > 0 && (topRight || bottomRight))) {
             this.x = newX;
         } else {
@@ -153,15 +153,15 @@ class Player {
         // Vérifier les collisions verticales
         const feetY = this.y + 100; // Bas du joueur
         const headY = this.y; // Haut du joueur
-        
+
         // Collision avec le sol
-        let isOnGround = world.isSolid(this.x + playerWidth, feetY) || 
-                        world.isSolid(this.x + playerWidth * 2 - 10, feetY);
-        
+        let isOnGround = world.isSolid(this.x + playerWidth, feetY) ||
+            world.isSolid(this.x + playerWidth * 2 - 10, feetY);
+
         // Collision avec le plafond
-        let hitHead = world.isSolid(this.x + playerWidth, headY + this.velocity.y) || 
-                     world.isSolid(this.x + playerWidth * 2 - 10, headY + this.velocity.y);
-                     
+        let hitHead = world.isSolid(this.x + playerWidth, headY + this.velocity.y) ||
+            world.isSolid(this.x + playerWidth * 2 - 10, headY + this.velocity.y);
+
         // Gérer les collisions verticales
         if (this.velocity.y > 0) { // Chute
             if (isOnGround) {
@@ -183,9 +183,9 @@ class Player {
         }
 
         // Vérifier si le joueur est maintenant sur le sol après son mouvement
-        isOnGround = world.isSolid(this.x + playerWidth, this.y + 100) || 
-                    world.isSolid(this.x + playerWidth * 2 - 10, this.y + 100);
-        
+        isOnGround = world.isSolid(this.x + playerWidth, this.y + 100) ||
+            world.isSolid(this.x + playerWidth * 2 - 10, this.y + 100);
+
         if (isOnGround && this.velocity.y >= 0) {
             this.jumping = false;
         }
