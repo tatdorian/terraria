@@ -13,6 +13,10 @@ class Player {
         this.health = 100;
         this.facingLeft = false;
 
+        // Movement control flags to handle multiple key presses
+        this.movingLeft = false;
+        this.movingRight = false;
+
         // Inventory system
         this.inventory = new Array(10).fill(null);
         this.selectedSlot = 0;
@@ -65,40 +69,50 @@ class Player {
     }
 
     handleInput(e, isKeyDown) {
-        switch (e.key) {
-            case 'ArrowLeft':
-            case 'q':
-            case 'Q':
-                this.velocity.x = isKeyDown ? -this.speed : 0;
+        switch (e.key.toLowerCase()) {
+            // Left movement - both A and arrow left
+            case 'arrowleft':
+            case 'a':
+            case 'q': // Support for AZERTY keyboards
+                this.movingLeft = isKeyDown;
                 if (isKeyDown) this.facingLeft = true;
+                this.updateHorizontalVelocity();
                 break;
-            case 'ArrowRight':
+                
+            // Right movement - both D and arrow right
+            case 'arrowright':
             case 'd':
-            case 'D':
-                this.velocity.x = isKeyDown ? this.speed : 0;
+                this.movingRight = isKeyDown;
                 if (isKeyDown) this.facingLeft = false;
+                this.updateHorizontalVelocity();
                 break;
+                
+            // Jump - Space, W, Z and arrow up
             case ' ':
-            case 'Space':
-            case 'ArrowUp':
+            case 'space':
+            case 'arrowup':
             case 'w':
-            case 'W':
+            case 'z': // Support for AZERTY keyboards
                 if (isKeyDown && !this.jumping) {
                     this.velocity.y = -10;
                     this.jumping = true;
                 }
                 break;
-            case 'Tab':
+                
+            case 'tab':
                 if (isKeyDown) {
                     this.inventoryOpen = !this.inventoryOpen;
                     e.preventDefault();
                 }
                 break;
-            case 'Enter':
+                
+            case 'enter':
                 if (isKeyDown) {
                     this.useSelectedItem();
                 }
                 break;
+                
+            // Hotbar selection
             case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8':
             case '9': case '0':
@@ -107,6 +121,27 @@ class Player {
                     this.selectedSlot = num;
                 }
                 break;
+                
+            case 'r':
+                if (isKeyDown) {
+                    // Ramasser un objet au sol
+                    console.log("Touche R pressée pour ramasser");
+                }
+                break;
+        }
+    }
+
+    // New method to handle velocity updates when multiple keys are pressed
+    updateHorizontalVelocity() {
+        if (this.movingLeft && this.movingRight) {
+            // If both left and right are pressed, prioritize the most recent one
+            this.velocity.x = this.facingLeft ? -this.speed : this.speed;
+        } else if (this.movingLeft) {
+            this.velocity.x = -this.speed;
+        } else if (this.movingRight) {
+            this.velocity.x = this.speed;
+        } else {
+            this.velocity.x = 0;
         }
     }
 

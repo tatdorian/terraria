@@ -7,6 +7,11 @@ class World {
         this.tileSize = 32;
         this.tiles = [];
         this.droppedItems = []; // Items that can be picked up
+        
+        // changed code: charger sons
+        this.destroySound = new Audio('/assets/sounds/destroy.mp3');
+        this.placeSound = new Audio('/assets/sounds/place.mp3');
+
         this.generateWorld();
     }
 
@@ -39,6 +44,9 @@ class World {
                     // Cette partie devrait être connectée au système d'inventaire
                     this.tiles[tileY][tileX] = 'dirt'; // Placeholder pour le bloc sélectionné
                     
+                    // changed code: jouer son
+                    this.placeSound.play();
+                    
                     // Ici, vous devriez diminuer la quantité dans l'inventaire
                     // player.useSelectedBlock()
                 }
@@ -47,6 +55,9 @@ class World {
                 if (this.tiles[tileY][tileX] !== null) {
                     const blockType = this.tiles[tileY][tileX];
                     this.tiles[tileY][tileX] = null;
+                    
+                    // changed code: jouer son
+                    this.destroySound.play();
                     
                     // Créer un objet à ramasser
                     this.droppedItems.push({
