@@ -36,6 +36,9 @@ class World {
         for (let x = 0; x < width; x++) {
             const groundY = groundHeights[x];
     
+            // ⚠️ Calculer UNE SEULE FOIS la profondeur de terre pour cette colonne x
+            const dirtDepth = Math.floor(Math.random() * 6) + 5;
+    
             for (let y = 0; y < height; y++) {
                 if (y < groundY) {
                     // Air
@@ -43,31 +46,28 @@ class World {
                 } else if (y === groundY) {
                     // Herbe
                     this.tiles[y][x] = 'grass';
-                } else if (y < groundY + 8) {
-                    // Terre
+                } else if (y < groundY + dirtDepth) {
+                    // Terre (profondeur constante dans cette colonne)
                     this.tiles[y][x] = 'dirt';
-                } else if (y < groundY + 12) {
-                    // Pierre
-                    this.tiles[y][x] = 'stone';
                 } else {
                     // Pierre
                     this.tiles[y][x] = 'stone';
                 }
             }
         }
-    
-        // Remplir les trous d'eau (si trou profond < groundLevelBase + 2)
-        const waterLevel = groundLevelBase + 3; // Niveau de l'eau (bas)
-        for (let x = 0; x < width; x++) {
-            const groundY = groundHeights[x];
-            if (groundY > waterLevel) { // Trou profond
-                for (let y = waterLevel; y < groundY; y++) {
-                    this.tiles[y][x] = 'water';
-                }
-            }
-        }
     }
     
+    isSolid(x, y) {
+        const tileX = Math.floor(x / this.tileSize);
+        const tileY = Math.floor(y / this.tileSize);
+        
+        // Check bounds
+        if (tileY < 0 || tileY >= this.tiles.length || tileX < 0 || tileX >= this.tiles[0].length) {
+            return false;
+        }
+        
+        return this.tiles[tileY][tileX] !== null;
+    }
 
     handleClick(x, y, isRightClick) {
         // Convert screen coordinates to tile coordinates
