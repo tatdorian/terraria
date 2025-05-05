@@ -67,8 +67,8 @@ class Player {
     handleInput(e, isKeyDown) {
         switch (e.key) {
             case 'ArrowLeft':
-            case 'a':
-            case 'A':
+            case 'q':
+            case 'Q':
                 this.velocity.x = isKeyDown ? -this.speed : 0;
                 if (isKeyDown) this.facingLeft = true;
                 break;

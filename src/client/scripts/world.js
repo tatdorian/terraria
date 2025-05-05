@@ -1,6 +1,6 @@
 // world.js
 import TextureLoader from './textures.js';
-import Item from './item.js';
+import Item from './items.js';
 
 class World {
     constructor() {
