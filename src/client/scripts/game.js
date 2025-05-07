@@ -16,6 +16,8 @@ export default class Game {
             this.player = new Player("Player");
             this.camera = { x: 0, y: 0 };
             this.keys = {};
+            this.mousePosition = { x: 0, y: 0 }; // Ajout pour suivre la position de la souris
+            this.lastClickTime = 0; // Pour le throttling des clics
 
             // Set player's initial position
             this.player.x = this.canvas.width / 2;
@@ -79,16 +81,30 @@ export default class Game {
                 this.player.inventoryOpen = !this.player.inventoryOpen;
             } else {
                 this.keys[e.key] = true;
-                this.player.handleInput(e, true);
+                this.player.handleInput(e, true, this.world);
             }
         });
     
         window.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
-            this.player.handleInput(e, false);
+            this.player.handleInput(e, false, this.world);
+        });
+        
+        // Suivre la position de la souris
+        this.canvas.addEventListener('mousemove', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            this.mousePosition.x = e.clientX - rect.left;
+            this.mousePosition.y = e.clientY - rect.top;
         });
     
         this.canvas.addEventListener('mousedown', (e) => {
+            // Ajouter throttling pour éviter les clics trop rapides
+            const now = Date.now();
+            if (now - this.lastClickTime < 200) { // 200ms entre les clics
+                return;
+            }
+            this.lastClickTime = now;
+            
             if (this.player.inventoryOpen) {
                 this.handleInventoryClick(e);
             } else {
@@ -125,12 +141,36 @@ export default class Game {
     }
     
     handleClick(e) {
+        // Calculer les coordonnées du monde en fonction de la caméra
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left + this.camera.x;
-        const y = e.clientY - rect.top + this.camera.y;
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
-        // Passage du player pour pouvoir mettre à jour l'inventaire
-        this.world.handleClick(x, y, e.button === 2, this.player);
+        // Coordonnées du clic dans le monde
+        const worldX = mouseX + this.camera.x;
+        const worldY = mouseY + this.camera.y;
+        
+        // Déterminer le tile exact
+        const tileX = Math.floor(worldX / this.world.tileSize);
+        const tileY = Math.floor(worldY / this.world.tileSize);
+        
+        // Afficher des informations de débogage
+        console.log(`Clic détecté: position écran (${mouseX}, ${mouseY}), position monde (${worldX}, ${worldY}), tile (${tileX}, ${tileY})`);
+        
+        // Si le clic est dans les limites du monde
+        if (
+            tileY >= 0 && tileY < this.world.tiles.length && 
+            tileX >= 0 && tileX < this.world.tiles[0].length
+        ) {
+            const isRightClick = e.button === 2;
+            const tileType = this.world.tiles[tileY][tileX];
+            
+            console.log(`Type de tuile: ${tileType}, bouton: ${isRightClick ? 'droit' : 'gauche'}`);
+            
+            // Appeler handleClick du monde avec les coordonnées correctes
+            const result = this.world.handleClick(worldX, worldY, isRightClick, this.player);
+            console.log(`Résultat de l'action: ${result ? 'succès' : 'échec'}`);
+        }
     }
 
     update(dt) {
@@ -144,6 +184,22 @@ export default class Game {
         const smoothing = 0.1;  // Adjust between 0 (immediate) and 1 (very smooth)
         this.camera.x += ((this.player.x - this.canvas.width / 2) - this.camera.x) * smoothing;
         this.camera.y += ((this.player.y - this.canvas.height / 2) - this.camera.y) * smoothing;
+
+        // Touche R pour ramasser des objets à proximité
+        if (this.keys['r'] || this.keys['R']) {
+            this.player.tryPickupNearbyItems(this.world);
+            // Réinitialiser pour éviter de ramasser en continu
+            this.keys['r'] = false;
+            this.keys['R'] = false;
+        }
+
+        // Touche C pour crafter
+        if (this.keys['c'] || this.keys['C']) {
+            this.player.craftItems();
+            // Réinitialiser pour éviter de crafter en continu
+            this.keys['c'] = false;
+            this.keys['C'] = false;
+        }
     }
 
     renderInventory() {
@@ -152,23 +208,23 @@ export default class Game {
         const padding = 10;
         const startX = (this.canvas.width - (slotSize + padding) * 10) / 2;
         const y = this.canvas.height - slotSize - 20;
-    
+
         // Draw background
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(startX - padding, y - padding, 
                     (slotSize + padding) * 10 + padding * 2, 
                     slotSize + padding * 2);
-    
+
         // Draw slots
         for (let i = 0; i < 10; i++) {
             const x = startX + i * (slotSize + padding);
-    
+
             ctx.fillStyle = i === this.player.selectedSlot ? '#FFD700' : '#444';
             ctx.fillRect(x, y, slotSize, slotSize);
-    
+
             ctx.strokeStyle = '#000';
             ctx.strokeRect(x, y, slotSize, slotSize);
-    
+
             const item = this.player.inventory[i];
             if (item && item.texture) {
                 ctx.drawImage(item.texture, x + 8, y + 8, 34, 34);
@@ -189,6 +245,26 @@ export default class Game {
             ctx.font = '16px Arial';
             ctx.fillText(selectedItem.name, startX, y - 10);
         }
+        
+        // Draw craft button
+        const buttonWidth = 120;
+        const buttonHeight = 30;
+        const buttonX = startX + (slotSize + padding) * 10 + padding;
+        const buttonY = y + (slotSize - buttonHeight) / 2;
+        
+        ctx.fillStyle = '#4A90E2';
+        ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(buttonX, buttonY, buttonWidth, buttonHeight);
+        
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.fillText('Craft Pickaxe (C)', buttonX + 10, buttonY + 20);
+        
+        // Instructions
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText('R: Ramasser items proches', startX, y + slotSize + padding * 2);
     }
     
     render() {
@@ -205,6 +281,17 @@ export default class Game {
         // Render world and player
         this.world.render(this.ctx);
         this.player.render(this.ctx);
+
+        // Render cible de la souris
+        const worldMouseX = this.mousePosition.x + this.camera.x;
+        const worldMouseY = this.mousePosition.y + this.camera.y;
+        const tileX = Math.floor(worldMouseX / this.world.tileSize) * this.world.tileSize;
+        const tileY = Math.floor(worldMouseY / this.world.tileSize) * this.world.tileSize;
+        
+        // Dessiner un contour pour le tile ciblé
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(tileX, tileY, this.world.tileSize, this.world.tileSize);
 
         // Restore transformation
         this.ctx.restore();
