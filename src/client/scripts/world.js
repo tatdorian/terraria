@@ -27,7 +27,7 @@ class World {
         this.droppedItems.push({ x: 2450, y: 300, item: new Item('stone') });
     }
 
-    handleClick(x, y, isRightClick) {
+    handleClick(x, y, isRightClick, player) {
         const tileX = Math.floor(x / this.tileSize);
         const tileY = Math.floor(y / this.tileSize);
 
@@ -48,12 +48,11 @@ class World {
                     const blockType = this.tiles[tileY][tileX];
                     this.tiles[tileY][tileX] = null;
                     
-                    // Créer un objet à ramasser
-                    this.droppedItems.push({
-                        x: tileX * this.tileSize,
-                        y: tileY * this.tileSize,
-                        item: new Item(blockType)
-                    });
+                    // Ajouter directement le bloc à l'inventaire du joueur
+                    if (player) {
+                        const item = new Item(blockType);
+                        player.pickUp(item);
+                    }
                 }
             }
         }
