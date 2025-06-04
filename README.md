@@ -34,17 +34,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. run the projet:
-```bash
-python -m src.server.app 
-```
-
-pour le deuxieme terminal :
-```bash
-cd src/client
-
-python -m http.server 8000
-```
 ## 🎮 Running the Project
 
 You need to start both the backend server and frontend server:
