@@ -4,6 +4,7 @@ import World from './world.js';
 import Player from './player.js';
 import ItemDatabase from './utils.js';
 import { initSideMenu } from './sideMenu.js';
+import { CraftingSystem } from './crafting.js';
 
 export default class Game {
     constructor(username) {
@@ -18,6 +19,7 @@ export default class Game {
             this.world.setPlayer(this.player); // Lier le player au world
             this.camera = { x: 0, y: 0 };
             this.keys = {};
+            this.craftMenuOpen = false;  // Add this line
 
             // Set player's initial position
             this.player.x = this.canvas.width / 2;
@@ -55,6 +57,9 @@ export default class Game {
             // Initialize side menu
             initSideMenu();
             
+            // Initialize crafting system
+            this.craftingSystem = new CraftingSystem(this.player.inventory);
+            
             // Start the game loop
             this.gameLoop();
             console.log('Game initialized successfully');
@@ -82,16 +87,24 @@ export default class Game {
             if (e.key === 'Tab') {
                 e.preventDefault(); // Prevent tab from changing focus
                 this.player.inventoryOpen = !this.player.inventoryOpen; // Toggle inventory
-                return; // Ne pas traiter les autres entrées quand on gère Tab
+                return; 
             }
             
-            // Touche F pour ramasser tous les items proches
+            if (e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                this.craftMenuOpen = !this.craftMenuOpen;
+                const craftMenu = document.querySelector('.craft-menu');
+                if (craftMenu) {
+                    craftMenu.style.display = this.craftMenuOpen ? 'block' : 'none';
+                }
+                return;
+            }
+            
             if (e.key === 'f' || e.key === 'F') {
                 this.world.collectNearbyItems(this.player);
                 return;
             }
             
-            // Ne traiter les autres touches que si l'inventaire est fermé
             if (!this.player.inventoryOpen) {
                 this.keys[e.key] = true;
                 this.player.handleInput(e, true);

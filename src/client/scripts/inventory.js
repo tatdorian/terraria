@@ -29,4 +29,34 @@ export default class Inventory {
 
         return false;
     }
+
+    countItem(itemName) {
+        return this.slots.reduce((total, slot) => {
+            if (slot.item && slot.item.name === itemName) {
+                return total + slot.quantity;
+            }
+            return total;
+        }, 0);
+    }
+
+    removeItems(itemName, amount) {
+        let remainingToRemove = amount;
+        
+        for (let slot of this.slots) {
+            if (slot.item && slot.item.name === itemName) {
+                if (slot.quantity >= remainingToRemove) {
+                    slot.quantity -= remainingToRemove;
+                    if (slot.quantity === 0) {
+                        slot.item = null;
+                    }
+                    return true;
+                } else {
+                    remainingToRemove -= slot.quantity;
+                    slot.quantity = 0;
+                    slot.item = null;
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -93,30 +93,24 @@ class Player {
     }
 
     update(world) {
-        // Appliquer la gravité (avec une limite de vitesse de chute)
         const maxFallSpeed = 15;
         this.velocity.y = Math.min(this.velocity.y + this.gravity, maxFallSpeed);
 
-        // Vérifier les collisions horizontales
         const newX = this.x + this.velocity.x;
         const playerWidth = 50; // Moitié de la largeur du joueur
 
-        // Vérifier les collisions aux quatre coins du joueur
         const topLeft = world.isSolid(newX, this.y + 10);
         const topRight = world.isSolid(newX + playerWidth * 2 - 10, this.y + 10);
         const bottomLeft = world.isSolid(newX, this.y + 90);
         const bottomRight = world.isSolid(newX + playerWidth * 2 - 10, this.y + 90);
 
-        // S'il n'y a pas de collision horizontale, appliquer le mouvement
         if (!(this.velocity.x < 0 && (topLeft || bottomLeft)) &&
             !(this.velocity.x > 0 && (topRight || bottomRight))) {
             this.x = newX;
         } else {
-            // Arrêter le mouvement horizontal en cas de collision
             this.velocity.x = 0;
         }
 
-        // Vérifier les collisions verticales
         const feetY = this.y + 100; // Bas du joueur
         const headY = this.y; // Haut du joueur
 

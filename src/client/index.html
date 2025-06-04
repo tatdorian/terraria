@@ -39,9 +39,22 @@
         </div>
         <canvas id="game-canvas"></canvas>
         <div class="hotbar"></div>
-        
+        <div id="craft-menu" class="craft-menu">
+            <h2>Crafting</h2>
+            <div class="recipe-container">
+                <div class="recipe-input">
+                    <span>4x Grass</span>
+                </div>
+                <div class="recipe-arrow">→</div>
+                <div class="recipe-output">
+                    <span>1x Dirt</span>
+                </div>
+                <button id="craft-grass-to-dirt" class="craft-btn">Craft</button>
+            </div>
+        </div>
     </div>
     <!-- Change script imports to use type="module" -->
     <script type="module" src="scripts/auth.js"></script>
+    <script type="module" src="scripts/craftMenu.js"></script>
 </body>
 </html>
