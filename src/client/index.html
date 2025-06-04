@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Clone</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/menu.css">
 </head>
 <body>
     <div id="login-container">
@@ -27,13 +28,33 @@
     </div>
 
     <div id="game-container" style="display: none;">
+        <button id="hamburger-btn" class="hamburger-btn">☰</button>
+        <div id="side-menu" class="side-menu">
+            <div class="side-menu-content">
+                <h2>Menu</h2>
+                <button id="resume-btn">Reprendre</button>
+                <button id="restart-btn">Recommencer</button>
+                <button id="logout-btn">Se déconnecter</button>
+            </div>
+        </div>
         <canvas id="game-canvas"></canvas>
         <div class="hotbar"></div>
-        <div class="health-bar">
-            <div class="health-fill"></div>
+        <div id="craft-menu" class="craft-menu">
+            <h2>Crafting</h2>
+            <div class="recipe-container">
+                <div class="recipe-input">
+                    <span>4x Grass</span>
+                </div>
+                <div class="recipe-arrow">→</div>
+                <div class="recipe-output">
+                    <span>1x Dirt</span>
+                </div>
+                <button id="craft-grass-to-dirt" class="craft-btn">Craft</button>
+            </div>
         </div>
     </div>
     <!-- Change script imports to use type="module" -->
     <script type="module" src="scripts/auth.js"></script>
+    <script type="module" src="scripts/craftMenu.js"></script>
 </body>
 </html>

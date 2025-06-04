@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV=/home/flhugo/Pixelcraft/terraria/venv
+VIRTUAL_ENV=/home/yassine/terraria/venv
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -70,13 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameContainer.style.display = 'block';
                 
                 try {
-                    // Import the default export (Game) correctly
                     const { default: Game } = await import('./game.js');
-                    const game = new Game();
+                    const game = new Game(formData.username);
                     await game.init();
 
                     console.log('Game started successfully');
-
                     game.player.x = 4800;
                 } catch (error) {
                     console.error('Error starting game:', error);
