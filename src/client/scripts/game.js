@@ -3,9 +3,10 @@ import TextureLoader from './textures.js';
 import World from './world.js';
 import Player from './player.js';
 import ItemDatabase from './utils.js';
+import { initSideMenu } from './sideMenu.js';
 
 export default class Game {
-    constructor() {
+    constructor(username) {
         try {
             this.canvas = document.getElementById('game-canvas');
             if (!this.canvas) {
@@ -13,7 +14,8 @@ export default class Game {
             }
             this.ctx = this.canvas.getContext('2d');
             this.world = new World();
-            this.player = new Player("Player");
+            this.player = new Player(username);
+            this.world.setPlayer(this.player); // Lier le player au world
             this.camera = { x: 0, y: 0 };
             this.keys = {};
 
@@ -50,6 +52,9 @@ export default class Game {
             // Set initial player position
             this.player.x = 2400;
             
+            // Initialize side menu
+            initSideMenu();
+            
             // Start the game loop
             this.gameLoop();
             console.log('Game initialized successfully');
@@ -76,16 +81,30 @@ export default class Game {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 e.preventDefault(); // Prevent tab from changing focus
-                this.player.inventoryOpen = !this.player.inventoryOpen;
-            } else {
+                this.player.inventoryOpen = !this.player.inventoryOpen; // Toggle inventory
+                return; // Ne pas traiter les autres entrées quand on gère Tab
+            }
+            
+            // Touche F pour ramasser tous les items proches
+            if (e.key === 'f' || e.key === 'F') {
+                this.world.collectNearbyItems(this.player);
+                return;
+            }
+            
+            // Ne traiter les autres touches que si l'inventaire est fermé
+            if (!this.player.inventoryOpen) {
                 this.keys[e.key] = true;
                 this.player.handleInput(e, true);
             }
         });
     
         window.addEventListener('keyup', (e) => {
+            if (e.key === 'Tab') return; // Ignorer le relâchement de Tab
+            
             this.keys[e.key] = false;
-            this.player.handleInput(e, false);
+            if (!this.player.inventoryOpen) {
+                this.player.handleInput(e, false);
+            }
         });
     
         this.canvas.addEventListener('mousedown', (e) => {
@@ -148,46 +167,50 @@ export default class Game {
 
     renderInventory() {
         const ctx = this.ctx;
-        const slotSize = 50;
-        const padding = 10;
+        const slotSize = 64;
+        const padding = 8;
         const startX = (this.canvas.width - (slotSize + padding) * 10) / 2;
         const y = this.canvas.height - slotSize - 20;
     
-        // Draw background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        // Fond semi-transparent
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(startX - padding, y - padding, 
                     (slotSize + padding) * 10 + padding * 2, 
                     slotSize + padding * 2);
     
-        // Draw slots
-        for (let i = 0; i < 10; i++) {
+        // Dessiner les slots
+        for (let i = 0; i < this.player.inventory.slots.length; i++) {
+            const slot = this.player.inventory.slots[i];
             const x = startX + i * (slotSize + padding);
     
-            ctx.fillStyle = i === this.player.selectedSlot ? '#FFD700' : '#444';
+            // Fond du slot
+            ctx.fillStyle = i === this.player.selectedSlot ? '#444444' : '#222222';
             ctx.fillRect(x, y, slotSize, slotSize);
     
-            ctx.strokeStyle = '#000';
+            // Bordure du slot
+            ctx.strokeStyle = i === this.player.selectedSlot ? '#FFD700' : '#666666';
+            ctx.lineWidth = 2;
             ctx.strokeRect(x, y, slotSize, slotSize);
     
-            const item = this.player.inventory[i];
-            if (item && item.texture) {
-                ctx.drawImage(item.texture, x + 8, y + 8, 34, 34);
+            // Dessin de l'item
+            if (slot && slot.item) {
+                // Item
+                const itemSize = slotSize * 0.8;
+                const itemX = x + (slotSize - itemSize) / 2;
+                const itemY = y + (slotSize - itemSize) / 2;
                 
-                // Show quantity if items are stackable
-                if (item.quantity && item.quantity > 1) {
+                if (slot.item.texture) {
+                    ctx.drawImage(slot.item.texture, itemX, itemY, itemSize, itemSize);
+                }
+    
+                // Quantité
+                if (slot.quantity > 1) {
                     ctx.fillStyle = 'white';
-                    ctx.font = '12px Arial';
-                    ctx.fillText(item.quantity, x + slotSize - 16, y + slotSize - 8);
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(slot.quantity.toString(), x + slotSize - 5, y + slotSize - 5);
                 }
             }
-        }
-        
-        // Show selected item name
-        const selectedItem = this.player.inventory[this.player.selectedSlot];
-        if (selectedItem) {
-            ctx.fillStyle = 'white';
-            ctx.font = '16px Arial';
-            ctx.fillText(selectedItem.name, startX, y - 10);
         }
     }
     

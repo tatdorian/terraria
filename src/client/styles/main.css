@@ -162,3 +162,59 @@ body {
         transform: translateY(0);
     }
 }
+
+.hamburger-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    transition: left 0.3s ease-in-out;
+    z-index: 999;
+}
+
+.side-menu.open {
+    left: 0;
+}
+
+.side-menu-content {
+    padding: 20px;
+    color: white;
+}
+
+.side-menu-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.side-menu-content button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.side-menu-content button:hover {
+    background: #357abd;
+}

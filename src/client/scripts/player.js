@@ -1,11 +1,14 @@
 // player.js
 import TextureLoader from './textures.js';
+import Inventory from './inventory.js';
 
 class Player {
     constructor(name) {
         this.name = name;
         this.x = 0;
         this.y = 0;
+        this.width = 32;
+        this.height = 48;
         this.velocity = { x: 0, y: 0 };
         this.speed = 5;
         this.gravity = 0.5;
@@ -14,54 +17,17 @@ class Player {
         this.facingLeft = false;
 
         // Inventory system
-        this.inventory = new Array(10).fill(null);
+        this.inventory = new Inventory(10);
         this.selectedSlot = 0;
         this.inventoryOpen = false;
     }
 
     pickUp(item) {
-        // Chercher d'abord un emplacement avec le même type d'objet (pour empiler)
-        const sameItemIndex = this.inventory.findIndex(slot =>
-            slot !== null &&
-            slot.name === item.name &&
-            slot.quantity < 99  // Limite de stack à 99
-        );
-
-        if (sameItemIndex !== -1) {
-            // Empiler l'objet
-            if (!this.inventory[sameItemIndex].quantity) {
-                this.inventory[sameItemIndex].quantity = 1;
-            }
-            this.inventory[sameItemIndex].quantity += 1;
-            console.log(`Empilé: ${item.name} (${this.inventory[sameItemIndex].quantity})`);
-            return true;
-        }
-
-        // Sinon, chercher un emplacement vide
-        const emptyIndex = this.inventory.findIndex(slot => slot === null);
-        if (emptyIndex !== -1) {
-            // Ajouter l'objet à l'inventaire
-            this.inventory[emptyIndex] = item;
-            // Initialiser la quantité si c'est un objet empilable
-            if (item.item_type === 'block' || item.item_type === 'consumable') {
-                item.quantity = 1;
-            }
-            console.log(`Ramassé: ${item.name}`);
-            return true;
-        } else {
-            console.log("Inventaire plein!");
-            return false;
-        }
+        return this.inventory.addItem(item);
     }
 
     replaceItem(slotIndex, item) {
-        if (slotIndex >= 0 && slotIndex < this.inventory.length) {
-            const oldItem = this.inventory[slotIndex];
-            this.inventory[slotIndex] = item;
-            console.log(`Remplacé: ${oldItem ? oldItem.name : 'vide'} par ${item.name}`);
-            return oldItem; // Retourne l'ancien objet pour éventuellement le déposer
-        }
-        return null;
+        return this.inventory.swapItem(slotIndex, item);
     }
 
     handleInput(e, isKeyDown) {
@@ -111,7 +77,7 @@ class Player {
     }
 
     useSelectedItem() {
-        const selectedItem = this.inventory[this.selectedSlot];
+        const selectedItem = this.inventory.getItem(this.selectedSlot);
         if (!selectedItem) return;
 
         console.log(`Used: ${selectedItem.name} (${selectedItem.item_type})`);
@@ -121,7 +87,7 @@ class Player {
             if (selectedItem.quantity > 1) {
                 selectedItem.quantity--;
             } else {
-                this.inventory[this.selectedSlot] = null;
+                this.inventory.removeItem(this.selectedSlot);
             }
         }
     }
@@ -214,12 +180,25 @@ class Player {
         if (texture) {
             ctx.save();
             if (this.facingLeft) {
-                ctx.translate(this.x + 50, this.y); // Half of player width (100/2)
+                ctx.translate(this.x + 50, this.y);
                 ctx.scale(-1, 1);
                 ctx.drawImage(texture, -50, 0, 100, 100);
             } else {
                 ctx.drawImage(texture, this.x, this.y, 100, 100);
             }
+
+            // Draw username above player
+            ctx.restore();
+            ctx.save();
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            const nameX = this.x + 50;
+            const nameY = this.y - 10;
+            ctx.strokeText(this.name, nameX, nameY);
+            ctx.fillText(this.name, nameX, nameY);
             ctx.restore();
         }
     }

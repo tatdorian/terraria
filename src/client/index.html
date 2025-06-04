@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Clone</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/menu.css">
 </head>
 <body>
     <div id="login-container">
@@ -27,11 +28,18 @@
     </div>
 
     <div id="game-container" style="display: none;">
+        <button id="hamburger-btn" class="hamburger-btn">☰</button>
+        <div id="side-menu" class="side-menu">
+            <div class="side-menu-content">
+                <h2>Menu</h2>
+                <button id="resume-btn">Reprendre</button>
+                <button id="restart-btn">Recommencer</button>
+                <button id="logout-btn">Se déconnecter</button>
+            </div>
+        </div>
         <canvas id="game-canvas"></canvas>
         <div class="hotbar"></div>
-        <div class="health-bar">
-            <div class="health-fill"></div>
-        </div>
+        
     </div>
     <!-- Change script imports to use type="module" -->
     <script type="module" src="scripts/auth.js"></script>
