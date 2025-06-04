@@ -77,7 +77,7 @@ terraria/
 - **Player Management**: Create and control players
 - **Inventory System**: Item management and usage
 - **World Interaction**: Player movement and world manipulation
-- **Multiplayer Support**: Real-time player interaction
+
 
 ## 🔒 API Endpoints
 
