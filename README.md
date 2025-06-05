@@ -28,6 +28,12 @@ cd terraria
 python -m venv venv
 source venv/bin/activate 
 ```
+for powerShell
+
+```bash
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
 
 3. Install dependencies:
 ```bash
