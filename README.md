@@ -19,7 +19,7 @@ A multiplayer Terraria-inspired game built with Python, Flask, and SQLite.
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/tatdorian/terraria.git
 cd terraria
 ```
 
